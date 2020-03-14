@@ -6,20 +6,17 @@ class Item < ApplicationRecord
   after_save :create_transaction_history
 
   class PointLackError < StandardError; end
-  class PurchasedError < StandardError; end
   class MyItemBuyError < StandardError; end
   class ExhibitError < StandardError; end
 
   # 購入処理
   def self.buy(item, buy_user)
     # 自分の商品は買うことが出来ない
-    raise MyItemBuyError.new("自分が登録した商品は購入できません") if item.create_user_id == buy_user.id
+    raise MyItemBuyError.new("自身が登録した商品は購入できません") if item.create_user_id == buy_user.id
     # 未出品の商品は買うことが出来ない
     raise ExhibitError.new("この商品は購入できません") unless item.exhibit_flag
     # ポイント残高不足
     raise PointLackError.new("ポイントが不足しています") if buy_user.point < item.point
-    # 既に購入されている
-    raise PurchasedError.new("この商品は他の方に購入されました") if item.buy_user_id.present?
     sell_user = item.create_user
     ActiveRecord::Base.transaction do
       item.buy_user_id = buy_user.id

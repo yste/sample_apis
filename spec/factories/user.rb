@@ -32,6 +32,11 @@ FactoryBot.define do
     password {"hogehoge"}
   end
 
+  factory :base_user3, class: User do
+    email {"hogehoge@example.com"}
+    password {"hogehoge"}
+  end
+
   factory :email_error_user, class: User do
     email {"hogehoge"}
     password {"hogefuga"}

@@ -4,8 +4,10 @@ class User < ApplicationRecord
         :recoverable, :rememberable, :trackable, :validatable
   include DeviseTokenAuth::Concerns::User
 
-  has_many :sell_items, class_name: :items, foreign_key: :create_user_id
-  has_many :buy_items, class_name: :items, foreign_key: :buy_user_id
+  has_many :sell_items, class_name: Item, foreign_key: :create_user_id
+  has_many :buy_items, class_name: Item, foreign_key: :buy_user_id
+  has_many :buy_histories, class_name: TransactionHistory, foreign_key: :buy_user_id
+  has_many :sell_histories, class_name: TransactionHistory, foreign_key: :sell_user_id
 
   before_create :give_initial_point
   before_validation :set_provider

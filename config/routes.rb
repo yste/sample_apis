@@ -6,7 +6,15 @@ Rails.application.routes.draw do
         registrations: 'api/v1/auth/registrations'
       }
       resources :users
-      resources :items
+      resources :items do
+        collection do
+          get :search
+        end
+        member do
+          post :change_exhibit
+          post :buy
+        end
+      end
       resources :histories, only: [:index]
     end
   end

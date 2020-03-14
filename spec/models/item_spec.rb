@@ -24,12 +24,20 @@ RSpec.describe Item, type: :model do
     expect(item.exhibit_flag).to eq(false)
     expect(@user.point).to eq(item.point + 1000)
     expect(@buy_user.point).to eq(1000 - item.point)
+    expect(item.transaction_history).to have_attributes(item_id: item.id, buy_user_id: @buy_user.id, sell_user_id: @user.id, point: item.point) 
+    expect(@user.sell_histories.first).to have_attributes(item_id: item.id)
+    expect(@buy_user.buy_histories.first).to have_attributes(item_id: item.id)
   end
 
   it "buy no exhibit item" do
     item = Item.create(FactoryBot.attributes_for(:item1).merge(create_user_id: @user.id, exhibit_flag: false))
     expect{Item.buy(item, @buy_user)}.to raise_error(Item::ExhibitError)
 
+  end
+  
+  it "buy owner item" do
+    item = Item.create(FactoryBot.attributes_for(:item1).merge(create_user_id: @user.id, exhibit_flag: true))
+    expect{Item.buy(item, @user)}.to raise_error(Item::MyItemBuyError)
   end
 
 end
