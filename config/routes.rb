@@ -7,7 +7,7 @@ Rails.application.routes.draw do
       }
       resources :users
       resources :items
-      resources :histories
+      resources :histories, only: [:index]
     end
   end
 end

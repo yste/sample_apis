@@ -12,17 +12,36 @@ RSpec.describe Api::V1::ItemsController, type: :request do
     }
   end
 
-  it "show my items" do
-    get "/api/v1/items", headers: @headers
-    expect(response.code).to eq("200")
+  describe "show items" do
+    it "empty item" do
+      get "/api/v1/items", headers: @headers
+      expect(response.code).to eq("200")
+      expect(JSON.parse(response.body)["status"]).to eq("SUCCESS")
+      expect(JSON.parse(response.body)["data"]).to be_empty
+    end
+
+    it "show items" do
+      item = Item.create(FactoryBot.attributes_for(:item1).merge(create_user_id: @user.id))
+      get "/api/v1/items", headers: @headers
+      expect(response.code).to eq("200")
+      expect(JSON.parse(response.body)["status"]).to eq("SUCCESS")
+      expect(JSON.parse(response.body)["data"]).to_not be_empty
+      expect(JSON.parse(response.body)["data"][0]["name"]).to eq(item.name)
+    end
   end
 
   it "create items" do
-    post "/api/v1/items", params: FactoryBot.attributes_for(:item1), headers: @headers
+    post "/api/v1/items", params: FactoryBot.attributes_for(:item1).to_json, headers: @headers
     expect(response.code).to eq("200")
   end
 
   describe "edit items" do
+    before do
+      @user2 = FactoryBot.create(:base_user2)
+      @owner_item = Item.create(FactoryBot.attributes_for(:item1).merge(create_user_id: @user.id))
+      @other_item = Item.create(FactoryBot.attributes_for(:item2).merge(create_user_id: @user2.id))
+    end
+
     it "owner item edit" do
     end
 
