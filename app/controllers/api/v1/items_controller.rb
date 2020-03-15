@@ -37,8 +37,12 @@ module Api::V1
     end
 
     def destroy 
+      if @item.buy_user_id.present?
+        render json: { status: 'ERROR', message: "売却した商品は削除出来ません"}, status: 400
+        return
+      end
       if @item.exhibit_flag
-        render json: { status: 'ERROR', message: "出品中の商品は削除できません"}, status: 400
+        render json: { status: 'ERROR', message: "出品中の商品は削除出来ません"}, status: 400
         return
       end
       @item.destroy!

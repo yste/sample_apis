@@ -88,6 +88,7 @@ RSpec.describe Api::V1::ItemsController, type: :request do
       @owner_item = Item.create(FactoryBot.attributes_for(:item1).merge(create_user_id: @user.id))
       @other_item = Item.create(FactoryBot.attributes_for(:item2).merge(create_user_id: @user2.id))
     end
+
     it "owner item delete" do
       delete "/api/v1/items/#{@owner_item.id}", headers: @headers
       expect(response.code).to eq("200")
@@ -100,7 +101,15 @@ RSpec.describe Api::V1::ItemsController, type: :request do
       @owner_item.save
       delete "/api/v1/items/#{@owner_item.id}", headers: @headers
       expect(response.code).to eq("400")
-      expect(JSON.parse(response.body)["message"]).to eq("出品中の商品は削除できません")
+      expect(JSON.parse(response.body)["message"]).to eq("出品中の商品は削除出来ません")
+    end
+
+    it "sell item delete" do
+      @owner_item.update({exhibit_flag: true})
+      Item.buy(@owner_item, @user2)
+      delete "/api/v1/items/#{@owner_item.id}", headers: @headers
+      expect(response.code).to eq("400")
+      expect(JSON.parse(response.body)["message"]).to eq("売却した商品は削除出来ません")
     end
 
     it "other user item delete" do
