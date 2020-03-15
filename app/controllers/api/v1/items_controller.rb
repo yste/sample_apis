@@ -18,12 +18,16 @@ module Api::V1
     def update
       @item.update!(@item_params)
       render json: { status: 'SUCCESS', data: @item }
+    rescue => e
+      render json: {status: 'ERROR', message: e.message}, status: 400
     end
 
     def change_exhibit
       @item.exhibit_flag = !@item.exhibit_flag
-      @item.save
+      @item.save!
       render json: { status: 'SUCCESS' }
+    rescue => e
+      render json: {status: 'ERROR', message: e.message}, status: 400
     end
 
     def buy
@@ -47,6 +51,8 @@ module Api::V1
       end
       @item.destroy!
       render json: { status: 'SUCCESS' }
+    rescue => e
+      render json: { status: 'ERROR', message: e.message }, status: 400
     end
 
     def search
