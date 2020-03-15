@@ -40,4 +40,23 @@ RSpec.describe Item, type: :model do
     expect{Item.buy(item, @user)}.to raise_error(Item::MyItemBuyError)
   end
 
+  it "destroy item" do
+    item = Item.create(FactoryBot.attributes_for(:item1).merge(create_user_id: @user.id, exhibit_flag: false))
+    expect(item.destroy).to be_truthy 
+  end
+
+  it "destroy on exhibit item" do
+    item = Item.create(FactoryBot.attributes_for(:item1).merge(create_user_id: @user.id, exhibit_flag: true))
+    item.destroy
+    expect(item.errors).to_not be_empty
+    expect(item.errors.messages[:all][0]).to eq("出品中の商品は削除できません")
+  end
+
+  it "destroy on buy item" do
+    item = Item.create(FactoryBot.attributes_for(:item1).merge(create_user_id: @user.id, exhibit_flag: true))
+    Item.buy(item, @buy_user)
+    item.destroy
+    expect(item.errors).to_not be_empty
+    expect(item.errors.messages[:all][0]).to eq("売却した商品は削除できません")
+  end
 end

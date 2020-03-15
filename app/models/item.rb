@@ -33,17 +33,19 @@ class Item < ApplicationRecord
   end
 
   private
+  # 購入処理成功時に売買履歴を生成する
   def create_transaction_history
     return if self.buy_user_id.blank?
     self.create_transaction_history!(buy_user_id: self.buy_user_id, sell_user_id: self.create_user_id, point: self.point)
   end
 
+  # 商品削除時のチェック
   def check_item
     if self.buy_user_id.present?
-      errors.add(:all, message: "売却した商品は削除できません")
+      errors.add(:all, "売却した商品は削除できません")
     end
     if self.exhibit_flag
-      errors.add(:alll, message: "出品中の商品は削除できません")
+      errors.add(:all, "出品中の商品は削除できません")
     end
   end
 
