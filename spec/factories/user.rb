@@ -41,4 +41,13 @@ FactoryBot.define do
     email {"hogehoge"}
     password {"hogefuga"}
   end
+
+  sequence :emails do |i|
+    "example#{i}@sample.com"
+  end
+
+  factory :other_users, class: User do 
+    email { generate :emails }
+    password {"hogehoge"}
+  end
 end

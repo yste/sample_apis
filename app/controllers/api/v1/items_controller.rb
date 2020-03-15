@@ -1,6 +1,6 @@
 module Api::V1
   class ItemsController < ApplicationController
-    before_action :authenticate_api_v1_user!
+    before_action :authenticate_api_v1_user!, except: [:search]
     before_action :set_params, only: [:create, :update]
     before_action :get_my_item, only: [:update, :destroy, :change_exhibit]
     before_action :get_item, only: [:buy]
@@ -46,7 +46,12 @@ module Api::V1
     end
 
     def search
-      
+      if api_v1_user_signed_in?
+        items = Item.where.not(create_user_id: current_api_v1_user.id).paginate(page: params[:page])
+      else
+        items = Item.paginate(page: params[:page].try(:to_i))
+      end
+      render json: { status: 'SUCCESS', data: items } 
     end
 
     private

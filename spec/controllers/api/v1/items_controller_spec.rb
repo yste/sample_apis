@@ -163,7 +163,50 @@ RSpec.describe Api::V1::ItemsController, type: :request do
   end
 
   describe "search items" do
+    before do
+      @other_users = FactoryBot.create_list(:other_users, 2)
+      @owner_items = FactoryBot.build_list(:items, 10)
+      @other_items1 = FactoryBot.build_list(:items, 20)
+      @other_items2 = FactoryBot.build_list(:items, 10)
+      @owner_items.each{|item| item.create_user_id = @user.id; item.save}
+      @other_items1.each{|item| item.create_user_id = @other_users.first.id; item.save}
+      @other_items2.each{|item| item.create_user_id = @other_users.last.id; item.save}
+
+      @default_search_items = @owner_items.map{|item| item.attributes}
+      @default_search_items.concat(@other_items1.map{|item| item.attributes})
+      @default_search_items.each{|item| item["created_at"] = item["created_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ"); item["updated_at"] = item["updated_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ")}
+      @defautl_serach_paging_items = @other_items2.map{|item| item.attributes}
+      @defautl_serach_paging_items.each{|item| item["created_at"] = item["created_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ"); item["updated_at"] = item["updated_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ")}
+      @sign_in_search_items = @other_items1.map{|item| item.attributes}
+      @sign_in_search_items.concat(@other_items2.map{|item| item.attributes})
+      @sign_in_search_items.each{|item| item["created_at"] = item["created_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ"); item["updated_at"] = item["updated_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ")}
+    end
+
     it "default search" do
+      get "/api/v1/items/search"
+      expect(response.code).to eq("200")
+      body = JSON.parse(response.body)
+      expect(body["status"]).to eq("SUCCESS")
+      expect(body["data"].length).to eq(30)
+      expect(body["data"]).to match_array(@default_search_items)
+    end
+
+    it "default search paging" do
+      param = {page: 2}
+      get "/api/v1/items/search", params: param
+      expect(response.code).to eq("200")
+      body = JSON.parse(response.body)
+      expect(body["status"]).to eq("SUCCESS")
+      expect(body["data"].length).to eq(10)
+      expect(body["data"]).to match_array(@defautl_serach_paging_items)
+    end
+
+    it "sign in search" do
+      get "/api/v1/items/search", headers: @headers
+      expect(response.code).to eq("200")
+      body = JSON.parse(response.body)
+      expect(body["data"].length).to eq(30)
+      expect(body["data"]).to match_array(@sign_in_search_items)
     end
   end
 
