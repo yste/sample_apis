@@ -27,10 +27,8 @@ RSpec.describe Api::V1::HistoriesController, type: :request do
     end
 
     @owner_user.reload
-    @buy_histories = @owner_user.buy_histories.map{|history| history.attributes }
-    @buy_histories.each{|history| history["created_at"] = history["created_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ"); history["updated_at"] = history["updated_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ")}
-    @sell_histories = @owner_user.sell_histories.map{|history| history.attributes }
-    @sell_histories.each{|history| history["created_at"] = history["created_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ"); history["updated_at"] = history["updated_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ")}
+    @buy_histories = JSON.parse(@owner_user.buy_histories.to_json(except: [:updated_at], include: {item: {only: :name}}))
+    @sell_histories = JSON.parse(@owner_user.sell_histories.to_json(except: [:updated_at], include: {item: {only: :name}}))
   end
 
   it "show histories" do
