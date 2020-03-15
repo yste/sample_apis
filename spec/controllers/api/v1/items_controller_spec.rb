@@ -182,15 +182,14 @@ RSpec.describe Api::V1::ItemsController, type: :request do
       @owner_items.each{|item| item.create_user_id = @user.id; item.save}
       @other_items1.each{|item| item.create_user_id = @other_users.first.id; item.save}
       @other_items2.each{|item| item.create_user_id = @other_users.last.id; item.save}
+      
+      @default_search_items = JSON.parse(@owner_items.to_json)
+      @default_search_items.concat(JSON.parse(@other_items1.to_json))
 
-      @default_search_items = @owner_items.map{|item| item.attributes}
-      @default_search_items.concat(@other_items1.map{|item| item.attributes})
-      @default_search_items.each{|item| item["created_at"] = item["created_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ"); item["updated_at"] = item["updated_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ")}
-      @defautl_serach_paging_items = @other_items2.map{|item| item.attributes}
-      @defautl_serach_paging_items.each{|item| item["created_at"] = item["created_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ"); item["updated_at"] = item["updated_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ")}
-      @sign_in_search_items = @other_items1.map{|item| item.attributes}
-      @sign_in_search_items.concat(@other_items2.map{|item| item.attributes})
-      @sign_in_search_items.each{|item| item["created_at"] = item["created_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ"); item["updated_at"] = item["updated_at"].strftime("%Y-%m-%dT%H:%M:%S.%3NZ")}
+      @defautl_serach_paging_items = JSON.parse(@other_items2.to_json)
+
+      @sign_in_search_items = JSON.parse(@other_items1.to_json)
+      @sign_in_search_items.concat(JSON.parse(@other_items2.to_json))
     end
 
     it "default search" do
