@@ -10,11 +10,15 @@ RSpec.describe Api::V1::UsersController, type: :request do
       'client' => response.header["client"],
       'uid' => response.header["uid"]
     }
+    @user.reload
   end
 
   it "show index" do
     get "/api/v1/users", headers: @headers
     expect(response.code).to eq("200")
+    body = JSON.parse(response.body)
+    expect(body["status"]).to eq('SUCCESS')
+    expect(body["data"]).to eq(JSON.parse(@user.to_json(except: [:encrypted_password, :tokens])))
   end
 
   it "unautholized show index" do

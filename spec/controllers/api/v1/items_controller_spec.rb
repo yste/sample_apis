@@ -26,7 +26,7 @@ RSpec.describe Api::V1::ItemsController, type: :request do
       expect(response.code).to eq("200")
       expect(JSON.parse(response.body)["status"]).to eq("SUCCESS")
       expect(JSON.parse(response.body)["data"]).to_not be_empty
-      expect(JSON.parse(response.body)["data"][0]["name"]).to eq(item.name)
+      expect(JSON.parse(response.body)["data"]).to match_array([JSON.parse(item.to_json).to_h])
     end
   end
 
@@ -56,6 +56,8 @@ RSpec.describe Api::V1::ItemsController, type: :request do
       put "/api/v1/items/#{@other_item.id}", params: edit_param.to_json, headers: @headers
       expect(response.code).to eq("404")
       expect(JSON.parse(response.body)["status"]).to eq("ERROR")
+      @other_item.reload
+      expect(@other_item.name).to_not eq(edit_param[:name])
     end
 
     it "owner item exhibit on" do
